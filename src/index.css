@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #000;
+  color: white;
+  font-family: "Poppins", sans-serif;
+}
+
+.btn {
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn-blue {
+  background-color: #0d47a1;
+  color: white;
+}
+
+.btn-green {
+  background-color: #2e7d32;
+  color: white;
+}
+
+.btn-red {
+  background-color: #b71c1c;
+  color: white;
+}
+
+.btn-purple {
+  background-color: #673ab7;
+  color: white;
+}
