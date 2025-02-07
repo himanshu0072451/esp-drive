@@ -232,6 +232,7 @@ function App() {
       const response = await fetch(`${ESP_IP}/control?dir=${cmd}`, { 
         method: "GET", 
         signal: abortController.signal
+        mode: "no-cors",
       });
 
       if (!response.ok) throw new Error("Failed to send command");
