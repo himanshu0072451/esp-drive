@@ -127,17 +127,20 @@ function App() {
   const [message, setMessage] = useState("");
   const [gestureActive, setGestureActive] = useState(false);
 
-  const sendCommand = async (cmd) => {
-    try {
-      const response = await fetch(`${ESP_IP}/control?dir=${cmd}`, { method: "GET" });
-      if (!response.ok) throw new Error("Failed to send command");
-      setMessage(`✅ Command Sent: ${cmd}`);
-      setTimeout(() => setMessage(""), 2000);
-    } catch {
-      setMessage("⚠️ Error: Check WiFi Connection!");
-      setTimeout(() => setMessage(""), 2000);
-    }
-  };
+const sendCommand = async (cmd) => {
+  try {
+    const response = await fetch(`${ESP_IP}/control?dir=${cmd}`, {
+      method: "GET",
+      mode: "no-cors", // Allow HTTP requests
+    });
+
+    setMessage(`✅ Command Sent: ${cmd}`);
+    setTimeout(() => setMessage(""), 2000);
+  } catch {
+    setMessage("⚠️ Error: Check WiFi Connection!");
+    setTimeout(() => setMessage(""), 2000);
+  }
+};
 
   const startVoiceControl = () => {
     if (!("webkitSpeechRecognition" in window)) {
