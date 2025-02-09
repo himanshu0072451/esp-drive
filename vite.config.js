@@ -8,7 +8,6 @@ export default defineConfig({
 server: {
     proxy: {
       '/control': {
-        target: 'http://192.168.147.74', // Your ESP8266 IP
         changeOrigin: true,
         secure: false,
       },

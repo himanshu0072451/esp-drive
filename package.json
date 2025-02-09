@@ -1,9 +1,9 @@
 {
-  "name": "driftx",
+  "name": "esp-drive",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://himanshu0072451.github.io/DriftX/",
+  "homepage": "https://himanshu0072451.github.io/esp-drive/",
 "scripts": {
   "dev": "vite",
   "build": "vite build",

@@ -2,7 +2,8 @@
 import axios from "axios";
 import { Joystick } from "react-joystick-component";
 
-const API_URL = "http://192.168.54.74"; // Update with your ESP8266 IP
+const API_URL = "http:// 192.168.229.7"
+ Update with your ESP8266 IP
 
 export default function App() {
   const [connected, setConnected] = useState(false);
@@ -114,9 +115,107 @@ export default function App() {
       </div>
     </div>
   );
-} */
+}
+
+ */
 
 //----------------------------------------
+
+//espWorking code
+/* import { useState, useEffect } from "react";
+import { Joystick } from "react-joystick-component";
+
+const ESP_IP = "http://192.168.54.74"; // Change this to your ESP8266 IP
+
+function App() {
+  const [message, setMessage] = useState("");
+  const [gestureActive, setGestureActive] = useState(false);
+
+  const sendCommand = async (cmd) => {
+    try {
+      const response = await fetch(`${ESP_IP}/control?dir=${cmd}`, { method: "GET" });
+      if (!response.ok) throw new Error("Failed to send command");
+      setMessage(`✅ Command Sent: ${cmd}`);
+      setTimeout(() => setMessage(""), 2000);
+    } catch {
+      setMessage("⚠️ Error: Check WiFi Connection!");
+      setTimeout(() => setMessage(""), 2000);
+    }
+  };
+
+  const startVoiceControl = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("⚠️ Your browser does not support Speech Recognition. Use Google Chrome.");
+      return;
+    }
+
+    let recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const command = event.results[0][0].transcript.toLowerCase();
+      const commands = { forward: "F", backward: "B", left: "L", right: "R", stop: "S" };
+
+      if (commands[command]) {
+        sendCommand(commands[command]);
+      } else {
+        alert(`⚠️ Unknown command: "${command}"`);
+      }
+    };
+
+    recognition.onerror = () => alert("⚠️ Voice recognition error. Try again.");
+    recognition.start();
+  };
+
+  useEffect(() => {
+    const handleMotion = (event) => {
+      if (!gestureActive) return;
+
+      const x = event.accelerationIncludingGravity.x;
+      if (x > 5) sendCommand("R");
+      else if (x < -5) sendCommand("L");
+    };
+
+    window.addEventListener("devicemotion", handleMotion);
+    return () => window.removeEventListener("devicemotion", handleMotion);
+  }, [gestureActive]);
+
+  return (
+    <div className="h-screen flex flex-col items-center justify-center gap-6 p-5 bg-black text-white space-bg">
+      <h1 className="text-3xl font-bold text-cyan-400">ESP8266 Car Controller</h1>
+      <p className="text-gray-400">Control your car using buttons, voice, joystick, or gestures!</p>
+
+      {message && (
+        <div className="bg-green-600 text-white px-4 py-2 rounded-md text-center">
+          {message}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-4">
+        <Joystick
+          size={100}
+          baseColor="#222"
+          stickColor="#08f"
+          move={(event) => sendCommand(event.direction.toUpperCase()[0])}
+          stop={() => sendCommand("S")}
+        />
+        <button className="btn btn-purple" onClick={startVoiceControl}>🎤 Start Voice Control</button>
+        <button className={`btn ${gestureActive ? "bg-red-500" : "bg-blue-500"}`}
+          onClick={() => setGestureActive(!gestureActive)}>
+          {gestureActive ? "🛑 Stop Gesture Control" : "🚀 Start Gesture Control"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+*/
+ 
+//----------------------------------------
+
 
 /* import { useState, useEffect } from "react";
 
@@ -135,8 +234,11 @@ function App() {
     try {
       const response = await fetch(`${ESP_IP}/control?dir=${cmd}`, { 
         method: "GET", 
+<<<<<<< HEAD
         signal: abortController.signal
         mode: "no-cors",
+=======
+>>>>>>> 837197d (Updated App.jsx and config)
       });
 
       if (!response.ok) throw new Error("Failed to send command");
@@ -244,7 +346,9 @@ function App() {
 
 export default App; */
 
-//-------------------------------------------
+
+//--------------------------------------------------
+
 
 import { useState, useEffect } from "react";
 
