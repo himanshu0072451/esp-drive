@@ -118,7 +118,7 @@ export default function App() {
 
 //----------------------------------------
 
-*/ import { useState, useEffect } from "react";
+/* import { useState, useEffect } from "react";
 
 const ESP_IP = "http://esp-car.local"; // Change this to your ESP8266 IP
 
