@@ -116,105 +116,9 @@ export default function App() {
   );
 } */
 
-//espWorking code
-/* import { useState, useEffect } from "react";
-import { Joystick } from "react-joystick-component";
-import "./App.css";
-
-const ESP_IP = "http://192.168.54.74"; // Change this to your ESP8266 IP
-
-function App() {
-  const [message, setMessage] = useState("");
-  const [gestureActive, setGestureActive] = useState(false);
-
-const sendCommand = async (cmd) => {
-  try {
-    const response = await fetch(`${ESP_IP}/control?dir=${cmd}`, {
-      method: "GET",
-      mode: "no-cors", // Allow HTTP requests
-    });
-
-    setMessage(`✅ Command Sent: ${cmd}`);
-    setTimeout(() => setMessage(""), 2000);
-  } catch {
-    setMessage("⚠️ Error: Check WiFi Connection!");
-    setTimeout(() => setMessage(""), 2000);
-  }
-};
-
-  const startVoiceControl = () => {
-    if (!("webkitSpeechRecognition" in window)) {
-      alert("⚠️ Your browser does not support Speech Recognition. Use Google Chrome.");
-      return;
-    }
-
-    let recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event) => {
-      const command = event.results[0][0].transcript.toLowerCase();
-      const commands = { forward: "F", backward: "B", left: "L", right: "R", stop: "S" };
-
-      if (commands[command]) {
-        sendCommand(commands[command]);
-      } else {
-        alert(`⚠️ Unknown command: "${command}"`);
-      }
-    };
-
-    recognition.onerror = () => alert("⚠️ Voice recognition error. Try again.");
-    recognition.start();
-  };
-
-  useEffect(() => {
-    const handleMotion = (event) => {
-      if (!gestureActive) return;
-
-      const x = event.accelerationIncludingGravity.x;
-      if (x > 5) sendCommand("R");
-      else if (x < -5) sendCommand("L");
-    };
-
-    window.addEventListener("devicemotion", handleMotion);
-    return () => window.removeEventListener("devicemotion", handleMotion);
-  }, [gestureActive]);
-
-  return (
-    <div className="h-screen flex flex-col items-center justify-center gap-6 p-5 bg-black text-white space-bg">
-      <h1 className="text-3xl font-bold text-cyan-400">ESP8266 Car Controller</h1>
-      <p className="text-gray-400">Control your car using buttons, voice, joystick, or gestures!</p>
-
-      {message && (
-        <div className="bg-green-600 text-white px-4 py-2 rounded-md text-center">
-          {message}
-        </div>
-      )}
-
-      <div className="flex flex-col gap-4">
-        <Joystick
-          size={100}
-          baseColor="#222"
-          stickColor="#08f"
-          move={(event) => sendCommand(event.direction.toUpperCase()[0])}
-          stop={() => sendCommand("S")}
-        />
-        <button className="btn btn-purple" onClick={startVoiceControl}>🎤 Start Voice Control</button>
-        <button className={`btn ${gestureActive ? "bg-red-500" : "bg-blue-500"}`}
-          onClick={() => setGestureActive(!gestureActive)}>
-          {gestureActive ? "🛑 Stop Gesture Control" : "🚀 Start Gesture Control"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export default App; */
- 
 //----------------------------------------
 
-import { useState, useEffect } from "react";
+*/ import { useState, useEffect } from "react";
 
 const ESP_IP = "http://esp-car.local"; // Change this to your ESP8266 IP
 
@@ -328,6 +232,152 @@ function App() {
 
       <button
         className={`btn mt-4 ${gestureActive ? "bg-red-500" : "bg-blue-500"}`}
+        onClick={() => setGestureActive(!gestureActive)}
+      >
+        {gestureActive ? "🛑 Stop Gesture Control" : "🚀 Start Gesture Control"}
+      </button>
+
+      <p className="text-gray-500 text-sm">Tilt your phone to steer the car (when enabled).</p>
+    </div>
+  );
+}
+
+export default App; */
+
+//-------------------------------------------
+
+import { useState, useEffect } from "react";
+
+const ESP_IP = localStorage.getItem("ESP_IP") || "http://esp-car.local"; // Store IP locally
+
+function App() {
+  const [message, setMessage] = useState("");
+  const [gestureActive, setGestureActive] = useState(false);
+  const [espIP, setEspIP] = useState(ESP_IP);
+  let abortController = new AbortController(); // To stop previous requests
+
+  const sendCommand = async (cmd) => {
+    abortController.abort();
+    abortController = new AbortController();
+
+    try {
+      const response = await fetch(`${espIP}/control?dir=${cmd}`, { 
+        method: "GET", 
+        signal: abortController.signal,
+        mode: "no-cors",
+      });
+
+      if (!response.ok) throw new Error("Failed to send command");
+
+      setMessage(`✅ Command Sent: ${cmd}`);
+      setTimeout(() => setMessage(""), 2000);
+    } catch {
+      setMessage("⚠️ Error: Check WiFi Connection!");
+      setTimeout(() => setMessage(""), 2000);
+    }
+  };
+
+  const stopCar = () => {
+    abortController.abort(); 
+    sendCommand("S"); 
+  };
+
+  const startVoiceControl = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("⚠️ Your browser does not support Speech Recognition. Use Google Chrome.");
+      return;
+    }
+
+    let recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const command = event.results[0][0].transcript.toLowerCase();
+      const commands = { forward: "L", backward: "R", left: "B", right: "F", stop: "S" };
+
+      if (commands[command]) {
+        sendCommand(commands[command]);
+      } else {
+        alert(`⚠️ Unknown command: "${command}"`);
+      }
+    };
+
+    recognition.onerror = () => alert("⚠️ Voice recognition error. Try again.");
+    recognition.start();
+  };
+
+  useEffect(() => {
+    const handleMotion = (event) => {
+      if (!gestureActive) return;
+
+      const y = event.accelerationIncludingGravity.y;
+      const x = event.accelerationIncludingGravity.x;
+
+      if (y > 5) sendCommand("L");
+      else if (y < -5) sendCommand("R");
+      else if (x > 5) sendCommand("B");
+      else if (x < -5) sendCommand("F");
+    };
+
+    window.addEventListener("devicemotion", handleMotion);
+    return () => window.removeEventListener("devicemotion", handleMotion);
+  }, [gestureActive]);
+
+  const saveIP = () => {
+    localStorage.setItem("ESP_IP", espIP);
+    alert("✅ ESP IP Saved!");
+  };
+
+  return (
+    <div className="h-screen flex flex-col items-center justify-center gap-6 p-5 bg-black text-white space-bg">
+      <h1 className="text-4xl font-bold text-cyan-400 animate-pulse">🚀 ESP8266 Car Controller</h1>
+      <p className="text-gray-400">Control your car using buttons, voice, or gestures!</p>
+
+      {message && (
+        <div className="bg-green-600 text-white px-4 py-2 rounded-md text-center animate-bounce">
+          {message}
+        </div>
+      )}
+
+      <div className="mb-3">
+        <input
+          type="text"
+          value={espIP}
+          onChange={(e) => setEspIP(e.target.value)}
+          className="p-2 bg-gray-800 text-white rounded-md text-center"
+          placeholder="Enter ESP IP (e.g., 192.168.x.x)"
+        />
+        <button onClick={saveIP} className="ml-2 px-4 py-2 bg-blue-500 rounded-md">
+          Save IP
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 text-center">
+        <button className="btn btn-blue col-span-3 transition-all hover:scale-110" onClick={() => sendCommand("L")}>
+          ⬆️ Forward
+        </button>
+        <button className="btn btn-green transition-all hover:scale-110" onClick={() => sendCommand("B")}>
+          ⬅️ Left
+        </button>
+        <button className="btn btn-red transition-all hover:scale-110" onClick={stopCar}>
+          🛑 Stop
+        </button>
+        <button className="btn btn-green transition-all hover:scale-110" onClick={() => sendCommand("F")}>
+          ➡️ Right
+        </button>
+        <button className="btn btn-blue col-span-3 transition-all hover:scale-110" onClick={() => sendCommand("R")}>
+          ⬇️ Backward
+        </button>
+      </div>
+
+      <button className="btn btn-purple mt-4 transition-all hover:scale-110" onClick={startVoiceControl}>
+        🎤 Start Voice Control
+      </button>
+
+      <button
+        className={`btn mt-4 transition-all hover:scale-110 ${gestureActive ? "bg-red-500" : "bg-blue-500"}`}
         onClick={() => setGestureActive(!gestureActive)}
       >
         {gestureActive ? "🛑 Stop Gesture Control" : "🚀 Start Gesture Control"}
